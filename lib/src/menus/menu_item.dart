@@ -47,29 +47,22 @@ class _MenuItemState extends State<MenuItem> {
           decoration: BoxDecoration(
             color:
                 (_isHovered || isSelected)
-                    // Màu nền bên trong border khi hover hoặc được chọn
                     ? Colors.grey[800]!.withOpacity(0.4)
                     : Colors.transparent,
-            // Không có màu khi không được chọn hoặc hover
             border:
                 (_isHovered || isSelected)
-                    // Border khi hover hoặc chọn
                     ? Border.all(
                       color: Colors.grey.shade800.withOpacity(0.4),
                       width: 1,
                     )
-                    // Không có border khi không hover hoặc chọn
                     : Border.all(color: Colors.transparent, width: 1),
 
             borderRadius: const BorderRadius.all(Radius.circular(6)),
           ),
           child: Material(
-            // Đảm bảo không có màu nền từ Material
             color: Colors.transparent,
             child: ListTile(
-              // Không có hover color
               hoverColor: Colors.transparent,
-              // Không có màu khi được chọn
               selectedTileColor: Colors.transparent,
               selected: isSelected,
               dense: true,
@@ -164,7 +157,7 @@ class _MenuItemState extends State<MenuItem> {
     required bool isExpanded,
     required bool isSelected,
   }) {
-    return Colors.white; // Màu của icon
+    return Colors.white;
   }
 
   Color _textColor({
@@ -172,7 +165,7 @@ class _MenuItemState extends State<MenuItem> {
     required bool isExpanded,
     required bool isSelected,
   }) {
-    return Colors.white; // Màu của text
+    return Colors.white;
   }
 
   Widget _buildNotificationValue(int notificationValue) {
