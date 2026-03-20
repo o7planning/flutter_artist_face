@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../helper/dimensions.dart';
-import '../helper/styles.dart';
+import 'menu_drawer_style.dart';
 import 'menu_model.dart';
 
+/// A single interactive item within the MenuDrawer.
+/// This widget is now purely presentational, relying on its parent for state and actions.
 class MenuItem extends StatefulWidget {
   final DrawerMenuItemModel menuModel;
   final bool isExpanded;
   final bool isMobile;
+  final MenuDrawerStyle style;
 
+  /// Callback triggered when the item is tapped.
+  final VoidCallback onTap;
+
+  /// Standardized icon size for the menu system.
   static const double menuIconSize = 18;
 
   const MenuItem({
@@ -19,6 +23,8 @@ class MenuItem extends StatefulWidget {
     required this.menuModel,
     required this.isExpanded,
     required this.isMobile,
+    required this.style,
+    required this.onTap,
   });
 
   @override
@@ -30,117 +36,78 @@ class _MenuItemState extends State<MenuItem> {
 
   @override
   Widget build(BuildContext context) {
+    /// Selection state is now strictly driven by the data model.
     final bool isSelected = widget.menuModel.isSelected;
-    //
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
-      child: MouseRegion(
-        onEnter:
-            (event) => setState(() {
-              _isHovered = true;
-            }),
-        onExit:
-            (event) => setState(() {
-              _isHovered = false;
-            }),
-        child: Container(
-          decoration: BoxDecoration(
-            color:
-                (_isHovered || isSelected)
-                    ? Colors.grey[800]!.withOpacity(0.4)
-                    : Colors.transparent,
-            border:
-                (_isHovered || isSelected)
-                    ? Border.all(
-                      color: Colors.grey.shade800.withOpacity(0.4),
-                      width: 1,
-                    )
-                    : Border.all(color: Colors.transparent, width: 1),
+    final style = widget.style;
 
-            borderRadius: const BorderRadius.all(Radius.circular(6)),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: ListTile(
-              hoverColor: Colors.transparent,
-              selectedTileColor: Colors.transparent,
-              selected: isSelected,
-              dense: true,
-              visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
-              horizontalTitleGap: 0,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: Dimensions.paddingSizeExtraSmall,
-              ),
-              title: _buildRow(context, isSelected),
-              onTap: () {
-                if (widget.menuModel.route != null) {
-                  Get.offAndToNamed(widget.menuModel.route!);
-                } else if (widget.menuModel.externalUrl != null) {
-                  openExternalUrl(widget.menuModel.externalUrl!);
-                }
-              },
-            ),
+    return MouseRegion(
+      onEnter: (event) => setState(() => _isHovered = true),
+      onExit: (event) => setState(() => _isHovered = false),
+      child: Container(
+        decoration: BoxDecoration(
+          /// Visual feedback for selection and hover states.
+          color: isSelected
+              ? (style.itemSelectedColor ?? Colors.grey[800]!.withOpacity(0.4))
+              : _isHovered
+              ? (style.itemHoverColor ?? Colors.grey[800]!.withOpacity(0.2))
+              : Colors.transparent,
+
+          border: Border.all(color: Colors.transparent, width: 1),
+          borderRadius: BorderRadius.circular(style.itemBorderRadius),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: ListTile(
+            hoverColor: Colors.transparent,
+            selectedTileColor: Colors.transparent,
+            selected: isSelected,
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+            horizontalTitleGap: 0,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+            title: _buildRow(context, isSelected),
+            onTap: widget.onTap,
           ),
         ),
       ),
     );
   }
 
-  Future<void> openExternalUrl(String externalUrl) async {
-    final url = Uri.parse(externalUrl);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(
-        url,
-        mode: LaunchMode.externalApplication,
-        // webOnlyWindowName: "_self",
-      );
-    }
-  }
-
   Widget _buildRow(BuildContext context, bool isSelected) {
+    final style = widget.style;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        /// Tooltip is only shown when the drawer is in collapsed mode.
         widget.isExpanded
-            ? _menuIcon(
-              iconData: widget.menuModel.iconData,
-              color: _iconColor(
-                context: context,
-                isExpanded: widget.isExpanded,
-                isSelected: isSelected,
-              ),
-            )
+            ? _buildMenuIcon()
             : JustTheTooltip(
-              content: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 5, 5, 5),
-                child: Text(widget.menuModel.menuTitle!.tr),
-              ),
-              preferredDirection: AxisDirection.right,
-              child: _menuIcon(
-                iconData: widget.menuModel.iconData,
-                color: _iconColor(
-                  context: context,
-                  isExpanded: widget.isExpanded,
-                  isSelected: isSelected,
+                content: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(widget.menuModel.menuTitle ?? ''),
                 ),
+                preferredDirection: AxisDirection.right,
+                child: _buildMenuIcon(),
               ),
-            ),
-        if (widget.isMobile || widget.isExpanded)
-          const SizedBox(width: Dimensions.paddingSizeSmall),
-        if (widget.isMobile || widget.isExpanded)
-          Text(
-            widget.menuModel.menuTitle!.tr,
-            style: ubuntuMedium.copyWith(
-              color: _textColor(
-                context: context,
-                isExpanded: widget.isExpanded,
-                isSelected: isSelected,
+
+        if (widget.isMobile || widget.isExpanded) ...[
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              widget.menuModel.menuTitle ?? '',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: style.itemTextColor,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
-              fontSize: 12,
             ),
           ),
-        if (widget.isExpanded) const Spacer(),
+        ],
+
+        /// Notification Badge handling.
         if ((widget.isMobile || widget.isExpanded) &&
             widget.menuModel.notifyValue != null)
           _buildNotificationValue(widget.menuModel.notifyValue!),
@@ -148,32 +115,19 @@ class _MenuItemState extends State<MenuItem> {
     );
   }
 
-  Widget _menuIcon({required IconData iconData, required Color color}) {
-    return Icon(iconData, color: color, size: MenuItem.menuIconSize);
-  }
-
-  Color _iconColor({
-    required BuildContext context,
-    required bool isExpanded,
-    required bool isSelected,
-  }) {
-    return Colors.white;
-  }
-
-  Color _textColor({
-    required BuildContext context,
-    required bool isExpanded,
-    required bool isSelected,
-  }) {
-    return Colors.white;
+  Widget _buildMenuIcon() {
+    return Icon(
+      widget.menuModel.iconData,
+      color: widget.style.itemIconColor,
+      size: MenuItem.menuIconSize,
+    );
   }
 
   Widget _buildNotificationValue(int notificationValue) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: Colors.pink,
-        border: Border.all(color: Colors.pink),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

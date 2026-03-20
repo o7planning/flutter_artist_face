@@ -1,14 +1,20 @@
 part of '../face_screen.dart';
 
-final _menuDrawerController = MenuDrawerController();
-
-class MenuDrawer extends StatefulWidget {
+class MenuDrawer extends StatelessWidget {
   final List<DrawerMenuGroupModel> drawerMenuGroupModels;
   final DrawerMenuItemModel? configurationMenuItemModel;
   final Widget Function(BuildContext context) buildDrawerExpandedProfile;
   final Widget Function(BuildContext context) buildDrawerCollapsedProfile;
   final Widget Function(BuildContext context) buildDrawerExpandedLogo;
   final Widget Function(BuildContext context) buildDrawerCollapsedLogo;
+
+  final bool isExpanded;
+  final bool isMobile;
+  final MenuDrawerStyle style;
+  final VoidCallback onToggle;
+
+  /// Callback triggered whenever a menu item is tapped
+  final Function(DrawerMenuItemModel menuModel) onMenuItemTap;
 
   const MenuDrawer({
     super.key,
@@ -18,82 +24,44 @@ class MenuDrawer extends StatefulWidget {
     required this.buildDrawerCollapsedProfile,
     required this.buildDrawerExpandedLogo,
     required this.buildDrawerCollapsedLogo,
+    required this.isExpanded,
+    required this.isMobile,
+    required this.onToggle,
+    required this.onMenuItemTap,
+    this.style = const MenuDrawerStyle(),
   });
 
   @override
-  State<StatefulWidget> createState() {
-    return _MenuDrawerState();
-  }
-}
-
-class _MenuDrawerState extends State<MenuDrawer> {
-  @override
-  void initState() {
-    super.initState();
-    _menuDrawerController._addStateListener(this);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    bool isMobile = ResponsiveHelper.isMobile(context);
-    //
-    return _buildMenuDrawer(
-      context,
-      isMobile: isMobile,
-      isExpanded: _menuDrawerController.isExpanded,
-    );
-  }
-
-  EdgeInsets _getOutsidePadding(bool isExpanded) {
-    return isExpanded
-        ? const EdgeInsets.fromLTRB(15, 0, 15, 5)
-        : const EdgeInsets.fromLTRB(5, 0, 5, 5);
-  }
-
-  Widget _buildMenuDrawer(
-    BuildContext context, {
-    required bool isMobile,
-    required bool isExpanded,
-  }) {
     return Container(
-      width: isExpanded ? 240 : 50,
-      color:
-          isExpanded
-              ? const Color.fromARGB(255, 15, 23, 42)
-              : const Color.fromARGB(255, 15, 23, 42),
+      width: isExpanded ? style.expandedWidth : style.collapsedWidth,
+      color: style.backgroundColor,
       child: Column(
         children: [
-          _buildControlTile(
-            context: context,
-            isMobile: isMobile,
-            isExpanded: isExpanded,
-          ),
-          if (isExpanded) widget.buildDrawerExpandedProfile(context),
+          _buildControlTile(context: context),
+          isExpanded
+              ? buildDrawerExpandedProfile(context)
+              : buildDrawerCollapsedProfile(context),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
-                children:
-                    widget.drawerMenuGroupModels
-                        .map(
-                          (menuGroup) => _buildMenuGroup(
-                            context,
-                            menuGroup: menuGroup,
-                            isMobile: isMobile,
-                            isExpanded: isExpanded,
-                          ),
-                        )
-                        .toList(),
+                children: drawerMenuGroupModels
+                    .map((group) => _buildMenuGroup(context, group))
+                    .toList(),
               ),
             ),
           ),
-          if (widget.configurationMenuItemModel != null)
+          if (configurationMenuItemModel != null)
             Padding(
-              padding: _getOutsidePadding(isExpanded),
-              child: _buildMenu(
-                context,
-                menuModel: widget.configurationMenuItemModel!,
-                isMobile: isMobile,
+              padding: isExpanded
+                  ? style.groupPadding
+                  : const EdgeInsets.all(5),
+              child: MenuItem(
+                menuModel: configurationMenuItemModel!,
                 isExpanded: isExpanded,
+                isMobile: isMobile,
+                style: style,
+                onTap: () => onMenuItemTap(configurationMenuItemModel!),
               ),
             ),
         ],
@@ -101,75 +69,44 @@ class _MenuDrawerState extends State<MenuDrawer> {
     );
   }
 
-  Widget _buildMenuGroup(
-    BuildContext context, {
-    required DrawerMenuGroupModel menuGroup,
-    required bool isMobile,
-    required bool isExpanded,
-  }) {
+  Widget _buildMenuGroup(BuildContext context, DrawerMenuGroupModel menuGroup) {
     return Theme(
       data: ThemeData().copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         minTileHeight: 0,
         enabled: menuGroup.showHeader,
-        title:
-            menuGroup.showHeader && isExpanded
-                ? Text(
-                  menuGroup.title, // (***)
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    color: Colors.lightBlue,
-                  ),
-                )
-                : menuGroup.showHeader
-                ? const Divider(height: 4)
-                : SizedBox(height: 0),
-        subtitle:
-            menuGroup.showHeader && isExpanded
-                ? Text(
-                  menuGroup.subtitle,
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
-                )
-                : null,
+        title: menuGroup.showHeader && isExpanded
+            ? Text(menuGroup.title, style: style.groupTitleStyle)
+            : menuGroup.showHeader
+            ? const Divider(height: 4, color: Colors.white24)
+            : const SizedBox.shrink(),
+        subtitle: menuGroup.showHeader && isExpanded
+            ? Text(menuGroup.subtitle, style: style.groupSubtitleStyle)
+            : null,
         backgroundColor: Colors.transparent,
         initiallyExpanded: true,
         showTrailingIcon: false,
-        tilePadding: _getOutsidePadding(isExpanded),
-        childrenPadding: _getOutsidePadding(isExpanded),
-        children:
-            menuGroup.menus
-                .map(
-                  (menuModel) => _buildMenu(
-                    context,
-                    menuModel: menuModel,
-                    isMobile: isMobile,
-                    isExpanded: isExpanded,
-                  ),
-                )
-                .toList(),
+        tilePadding: isExpanded ? style.groupPadding : EdgeInsets.zero,
+        childrenPadding: EdgeInsets.zero,
+        children: menuGroup.menus
+            .map(
+              (menuModel) => Padding(
+                padding: style.itemPadding,
+                child: MenuItem(
+                  menuModel: menuModel,
+                  isExpanded: isExpanded,
+                  isMobile: isMobile,
+                  style: style,
+                  onTap: () => onMenuItemTap(menuModel),
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
 
-  Widget _buildMenu(
-    BuildContext context, {
-    required DrawerMenuItemModel menuModel,
-    required bool isMobile,
-    required bool isExpanded,
-  }) {
-    return MenuItem(
-      menuModel: menuModel,
-      isExpanded: isExpanded,
-      isMobile: isMobile,
-    );
-  }
-
-  Widget _buildControlTile({
-    required BuildContext context,
-    required bool isMobile,
-    required bool isExpanded,
-  }) {
+  Widget _buildControlTile({required BuildContext context}) {
     return ListTile(
       dense: true,
       visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
@@ -177,18 +114,11 @@ class _MenuDrawerState extends State<MenuDrawer> {
       contentPadding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
       title: Align(
         alignment: Alignment.centerLeft,
-        child:
-            isMobile || isExpanded
-                ? widget.buildDrawerExpandedLogo(context)
-                : widget.buildDrawerCollapsedLogo(context),
+        child: isMobile || isExpanded
+            ? buildDrawerExpandedLogo(context)
+            : buildDrawerCollapsedLogo(context),
       ),
-      onTap: () {
-        if (isMobile) {
-          Scaffold.of(context).closeDrawer();
-        } else {
-          _menuDrawerController.toggle();
-        }
-      },
+      onTap: onToggle,
     );
   }
 }

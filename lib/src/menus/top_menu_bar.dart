@@ -1,54 +1,71 @@
 part of '../face_screen.dart';
 
-class TopMenuBar extends StatelessWidget implements PreferredSizeWidget {
-  final EdgeInsets? contentPadding;
-  final Widget Function(BuildContext context, MenuDrawerController controller)
-  buildTopMenuShowHideDrawerButton;
+/// The horizontal navigation bar at the top of the application.
+/// Strictly follows a stateless pattern, receiving data via constructor.
+class TopMenuBar extends StatelessWidget {
+  final bool isMobile;
+  final bool isMenuDrawerExpanded;
 
-  //
-  final Widget Function(BuildContext context)? buildTopMenuProfile;
+  /// Callback to notify the parent when the menu toggle is pressed.
+  final VoidCallback onToggleMenuDrawer;
 
-  final List<Widget> Function(BuildContext context)
-  buildTopMenuCenterRightMenuItems;
-
-  final Widget? Function(BuildContext context) buildTopMenuTitle;
+  final Widget Function(BuildContext context) buildTopMenuLeading;
+  final Widget Function(BuildContext context) buildTopMenuCenter;
+  final Widget Function(BuildContext context) buildTopMenuTrailing;
 
   const TopMenuBar({
-    this.contentPadding,
-    required this.buildTopMenuTitle,
-    required this.buildTopMenuShowHideDrawerButton,
-    required this.buildTopMenuCenterRightMenuItems,
-    required this.buildTopMenuProfile,
     super.key,
+    required this.isMobile,
+    required this.isMenuDrawerExpanded,
+    required this.onToggleMenuDrawer,
+    required this.buildTopMenuLeading,
+    required this.buildTopMenuCenter,
+    required this.buildTopMenuTrailing,
   });
 
   @override
   Widget build(BuildContext context) {
-    Widget? titleWidget = buildTopMenuTitle(context);
-
-    return Container(
-      padding:
-          contentPadding ??
-          const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: const Border(
-          bottom: BorderSide(color: Colors.black38, width: 0.3),
-        ),
+    return InternalCustomAppContainer(
+      height: 60,
+      margin: const EdgeInsets.only(bottom: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      borderRadius: 0,
+      border: const Border(
+        bottom: BorderSide(color: Colors.black12, width: 1.0),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          buildTopMenuShowHideDrawerButton(context, _menuDrawerController),
-          if (titleWidget != null) Expanded(child: titleWidget),
-          ...buildTopMenuCenterRightMenuItems(context),
-          if (buildTopMenuProfile != null) buildTopMenuProfile!(context),
+          /// Left Section: Toggle Button and Leading Widgets
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  if (isMobile) {
+                    Scaffold.of(context).openDrawer();
+                  } else {
+                    onToggleMenuDrawer();
+                  }
+                },
+                icon: Icon(
+                  isMobile
+                      ? Icons.menu
+                      : (isMenuDrawerExpanded ? Icons.menu_open : Icons.menu),
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(width: 8),
+              buildTopMenuLeading(context),
+            ],
+          ),
+
+          /// Center Section
+          Expanded(child: buildTopMenuCenter(context)),
+
+          /// Right Section: Trailing Widgets (Profile, Notifications, etc.)
+          buildTopMenuTrailing(context),
         ],
       ),
     );
   }
-
-  @override
-  Size get preferredSize => const Size(Dimensions.webMaxWidth, 80);
 }

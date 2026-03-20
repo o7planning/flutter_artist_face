@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
 
 import '../helper/dimensions.dart';
 import '../helper/responsive_helper.dart';
@@ -65,7 +64,7 @@ class FooterSection extends StatelessWidget {
         if (ResponsiveHelper.isMobile(context))
           Row(
             children: [
-              Text('profile'.tr),
+              Text('profile'),
               const SizedBox(width: Dimensions.paddingSizeLarge),
               Container(
                 height: 10,
@@ -96,7 +95,7 @@ class FooterSection extends StatelessWidget {
               ),
               const SizedBox(width: Dimensions.paddingSizeLarge),
               Text(
-                'software_version'.tr,
+                'software_version',
                 style: ubuntuRegular.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
@@ -117,12 +116,9 @@ class FooterSection extends StatelessWidget {
           borderRadius: const BorderRadius.all(
             Radius.circular(Dimensions.radiusSmall),
           ),
-          color:
-              isActive
-                  ? Theme.of(
-                    context,
-                  ).textTheme.bodySmall!.color!.withOpacity(.2)
-                  : Colors.transparent,
+          color: isActive
+              ? Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.2)
+              : Colors.transparent,
         ),
         child: Center(child: Text(pageNumber.toString())),
       ),

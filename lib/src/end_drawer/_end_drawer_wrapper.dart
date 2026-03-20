@@ -1,4 +1,4 @@
-part of '../base_face_screen.dart';
+part of '../face_screen.dart';
 
 class _EndDrawerWrapper extends StatefulWidget {
   final double Function(BuildContext context) calculateEndDrawerWidth;
@@ -27,10 +27,10 @@ class _EndDrawerWrapperState extends State<_EndDrawerWrapper> {
     return endDrawer == null
         ? SizedBox()
         : InternalCustomAppContainer(
-          padding: const EdgeInsets.all(0),
-          width: widget.calculateEndDrawerWidth(context),
-          height: double.infinity,
-          child: endDrawer,
-        );
+            padding: const EdgeInsets.all(0),
+            width: widget.calculateEndDrawerWidth(context),
+            height: double.infinity,
+            child: endDrawer,
+          );
   }
 }
