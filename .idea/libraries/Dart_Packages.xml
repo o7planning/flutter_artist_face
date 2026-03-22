@@ -86,13 +86,6 @@
             </list>
           </value>
         </entry>
-        <entry key="get">
-          <value>
-            <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/get-5.0.0-release-candidate-9.3.2/lib" />
-            </list>
-          </value>
-        </entry>
         <entry key="just_the_tooltip">
           <value>
             <list>
@@ -385,7 +378,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/ffi-2.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file-7.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/get-5.0.0-release-candidate-9.3.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/just_the_tooltip-0.0.12/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/leak_tracker-11.0.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/leak_tracker_flutter_testing-3.0.10/lib" />

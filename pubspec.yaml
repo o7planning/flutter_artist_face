@@ -11,8 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  get: ^5.0.0-release-candidate-9.3.2
-
   shared_preferences: ^2.5.4
   just_the_tooltip: ^0.0.12
   url_launcher: ^6.3.2
