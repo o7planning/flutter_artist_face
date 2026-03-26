@@ -6,7 +6,6 @@ import 'menus/menu_drawer_style.dart';
 import 'menus/menu_item.dart';
 import 'menus/menu_model.dart';
 
-part 'controller/menu_drawer_controller.dart';
 part 'end_drawer/_end_drawer_wrapper.dart';
 part 'menus/menu_drawer.dart';
 part 'menus/top_menu_bar.dart';
