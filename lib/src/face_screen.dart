@@ -91,7 +91,12 @@ class FaceScreenState extends State<FaceScreen> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       drawer: isMobile
-          ? _buildMenuDrawer(context, isMobile: true, isExpanded: true)
+          ? _buildMenuDrawer(
+              context,
+              style: style,
+              isMobile: true,
+              isExpanded: true,
+            )
           : null,
       endDrawer: finalEndDrawer,
       onEndDrawerChanged: widget.onEndDrawerChanged,
@@ -100,6 +105,7 @@ class FaceScreenState extends State<FaceScreen> {
           if (!isMobile)
             _buildMenuDrawer(
               context,
+              style: style,
               isMobile: false,
               isExpanded: _isMenuDrawerExpanded,
             ),
@@ -114,15 +120,7 @@ class FaceScreenState extends State<FaceScreen> {
                   buildTopMenuCenter: widget.buildTopMenuCenter,
                   buildTopMenuTrailing: widget.buildTopMenuTrailing,
                 ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(child: widget.buildBody(context)),
-                      // if (widget.buildFooter(context) != null)
-                      //   widget.buildFooter(context)!,
-                    ],
-                  ),
-                ),
+                Expanded(child: widget.buildBody(context)),
               ],
             ),
           ),
@@ -134,6 +132,7 @@ class FaceScreenState extends State<FaceScreen> {
   /// Internal helper to build the drawer with navigation logic
   Widget _buildMenuDrawer(
     BuildContext context, {
+    required MenuDrawerStyle style,
     required bool isMobile,
     required bool isExpanded,
   }) {
@@ -143,7 +142,7 @@ class FaceScreenState extends State<FaceScreen> {
       onToggle: isMobile
           ? () => Navigator.of(context).pop()
           : _handleToggleMenuDrawer,
-      style: widget.buildMenuDrawerStyle(context),
+      style: style,
       drawerMenuGroupModels: widget.buildDrawerMenuGroupModels(context),
       configurationMenuItemModel: widget.buildConfigurationMenuItemModel(
         context,

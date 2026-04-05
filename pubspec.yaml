@@ -15,6 +15,9 @@ dependencies:
   just_the_tooltip: ^0.0.12
   url_launcher: ^6.3.2
 
+  flutter_artist_theme:
+    path: ../flutter_artist_theme
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
