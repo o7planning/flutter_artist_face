@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 
-import 'menu_drawer_style.dart';
+import '../style/face_style.dart';
 import 'menu_model.dart';
 
 /// A single interactive item within the MenuDrawer.
@@ -10,7 +10,7 @@ class MenuItem extends StatefulWidget {
   final DrawerMenuItemModel menuModel;
   final bool isExpanded;
   final bool isMobile;
-  final MenuDrawerStyle style;
+  final FaceStyle style;
 
   /// Callback triggered when the item is tapped.
   final VoidCallback onTap;
@@ -38,7 +38,15 @@ class _MenuItemState extends State<MenuItem> {
   Widget build(BuildContext context) {
     /// Selection state is now strictly driven by the data model.
     final bool isSelected = widget.menuModel.isSelected;
-    final style = widget.style;
+
+    final double radius = widget.style.sidebarStyle?.itemBorderRadius ?? 4;
+
+    final Color? iconColor = widget.style.sidebarStyle?.itemIconColor;
+    final Color? textColor = widget.style.sidebarStyle?.itemTextColor;
+    // style.itemHoverColor
+    final Color? hoverColor = widget.style.sidebarStyle?.itemHoverColor;
+    // style.itemSelectedColor
+    final Color? selectedColor = widget.style.sidebarStyle?.itemSelectedColor;
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
@@ -47,13 +55,11 @@ class _MenuItemState extends State<MenuItem> {
         decoration: BoxDecoration(
           /// Visual feedback for selection and hover states.
           color: isSelected
-              ? (style.itemSelectedColor ?? Colors.grey[800]!.withOpacity(0.4))
-              : _isHovered
-              ? (style.itemHoverColor ?? Colors.grey[800]!.withOpacity(0.2))
-              : Colors.transparent,
+              ? selectedColor
+              : (_isHovered ? hoverColor : Colors.transparent),
 
           border: Border.all(color: Colors.transparent, width: 1),
-          borderRadius: BorderRadius.circular(style.itemBorderRadius),
+          borderRadius: BorderRadius.circular(radius),
         ),
         child: Material(
           color: Colors.transparent,
@@ -65,7 +71,7 @@ class _MenuItemState extends State<MenuItem> {
             visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
             horizontalTitleGap: 0,
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-            title: _buildRow(context, isSelected),
+            title: _buildRow(context, isSelected, iconColor, textColor),
             onTap: widget.onTap,
           ),
         ),
@@ -73,23 +79,26 @@ class _MenuItemState extends State<MenuItem> {
     );
   }
 
-  Widget _buildRow(BuildContext context, bool isSelected) {
-    final style = widget.style;
-
+  Widget _buildRow(
+    BuildContext context,
+    bool isSelected,
+    Color? iconColor,
+    Color? textColor,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         /// Tooltip is only shown when the drawer is in collapsed mode.
         widget.isExpanded
-            ? _buildMenuIcon()
+            ? _buildMenuIcon(iconColor)
             : JustTheTooltip(
                 content: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(widget.menuModel.menuTitle ?? ''),
                 ),
                 preferredDirection: AxisDirection.right,
-                child: _buildMenuIcon(),
+                child: _buildMenuIcon(iconColor),
               ),
 
         if (widget.isMobile || widget.isExpanded) ...[
@@ -99,7 +108,7 @@ class _MenuItemState extends State<MenuItem> {
               widget.menuModel.menuTitle ?? '',
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: style.itemTextColor,
+                color: textColor,
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
@@ -115,10 +124,10 @@ class _MenuItemState extends State<MenuItem> {
     );
   }
 
-  Widget _buildMenuIcon() {
+  Widget _buildMenuIcon(Color? iconColor) {
     return Icon(
       widget.menuModel.iconData,
-      color: widget.style.itemIconColor,
+      color: iconColor,
       size: MenuItem.menuIconSize,
     );
   }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_artist_face/src/widget/internal_custom_app_container.dart';
+import 'package:flutter_artist_theme/flutter_artist_theme.dart';
 
+import '../flutter_artist_face.dart';
 import 'helper/responsive_helper.dart';
-import 'menus/menu_drawer_style.dart';
-import 'menus/menu_item.dart';
-import 'menus/menu_model.dart';
+import 'style/topbar_style.dart';
 
 part 'end_drawer/_end_drawer_wrapper.dart';
 part 'menus/menu_drawer.dart';
@@ -25,31 +25,110 @@ abstract class FaceScreen extends StatefulWidget {
 
   DrawerMenuItemModel? buildConfigurationMenuItemModel(BuildContext context);
 
-  Widget buildTopMenuLeading(BuildContext context);
+  Widget buildTopMenuLeading({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildTopMenuCenter(BuildContext context);
+  Widget buildTopMenuCenter({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildTopMenuTrailing(BuildContext context);
+  Widget buildTopMenuTrailing({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildDrawerExpandedLogo(BuildContext context);
+  Widget buildDrawerExpandedLogo({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildDrawerCollapsedLogo(BuildContext context);
+  Widget buildDrawerCollapsedLogo({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildDrawerExpandedProfile(BuildContext context);
+  Widget buildDrawerExpandedProfile({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildDrawerCollapsedProfile(BuildContext context);
+  Widget buildDrawerCollapsedProfile({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget buildBody(BuildContext context);
+  Widget buildBody(BuildContext context, {required FaceStyle effectiveStyle});
 
-  Widget? buildFooter(BuildContext context);
+  Widget? buildFooter({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
-  Widget? buildEndDrawer(BuildContext context);
+  Widget? buildEndDrawer({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
   // --- Configuration & Events ---
   double calculateEndDrawerWidth(BuildContext context) => 320;
 
-  MenuDrawerStyle buildMenuDrawerStyle(BuildContext context) =>
-      const MenuDrawerStyle();
+  FaceStyle buildSidebarStyle(BuildContext context) => const FaceStyle();
+
+  /// Users can override this screen to define their own style.
+  FaceStyle buildStyle(BuildContext context);
+
+  /// Get styles from the Theme (usually via Theme.of(context).extension<...>)
+  /// User can override this method.
+  @override
+  FaceStyle? themeStyle(BuildContext context) {
+    final theme = Theme.of(context);
+    FaTheme faTheme = FaThemeHub.instance.getCurrentTheme();
+
+    return FaceStyle(
+      scaffoldBackground: theme.scaffoldBackgroundColor,
+      sidebarStyle: SidebarStyle(
+        backgroundColor: faTheme.tokens.layoutColors.sidebarSurface,
+        itemIconColor: faTheme.tokens.layoutColors.onSidebarSurface,
+        itemTextColor: faTheme.tokens.layoutColors.onSidebarSurface,
+        itemBorderRadius: faTheme.tokens.shortcut.borderRadius,
+        //
+        groupTitleStyle: TextStyle(
+          color: faTheme.tokens.colors.primary,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        groupSubtitleStyle: TextStyle(
+          color: faTheme.tokens.layoutColors.onSidebarSurface.withValues(
+            alpha: 0.5,
+          ),
+          fontSize: 11,
+        ),
+        itemHoverColor: faTheme.tokens.layoutColors.onSidebarSurface.withValues(
+          alpha: 0.1,
+        ),
+        itemSelectedColor: faTheme.tokens.layoutColors.onSidebarSurface
+            .withValues(alpha: 0.2),
+      ),
+      topbarStyle: TopbarStyle(
+        backgroundColor: faTheme.tokens.layoutColors.topbarSurface,
+        iconColor: faTheme.tokens.layoutColors.onTopbarSurface,
+        textColor: faTheme.tokens.layoutColors.onTopbarSurface,
+      ),
+    );
+  }
+
+  /// 3-Layer Unified Logic Processing Method.
+  FaceStyle _resolveStyle(BuildContext context) {
+    final userStyle = buildStyle(context);
+    final appThemeStyle = themeStyle(context);
+    final systemDefaults = FaceStyle.defaults();
+
+    // Priority order: User > Theme > Defaults
+    return userStyle.merge(appThemeStyle).merge(systemDefaults);
+  }
 
   void onEndDrawerChanged(bool isOpened) {}
 
@@ -76,24 +155,28 @@ class FaceScreenState extends State<FaceScreen> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = ResponsiveHelper.isMobile(context);
-    final style = widget.buildMenuDrawerStyle(context);
+    final FaceStyle effectiveStyle = widget._resolveStyle(context);
 
     // Prepare Native EndDrawer
-    Widget? endDrawerWidget = widget.buildEndDrawer(context);
+    Widget? endDrawerWidget = widget.buildEndDrawer(
+      context: context,
+      effectiveStyle: effectiveStyle,
+    );
     Widget? finalEndDrawer = endDrawerWidget == null
         ? null
         : _EndDrawerWrapper(
+            effectiveStyle: effectiveStyle,
             calculateEndDrawerWidth: widget.calculateEndDrawerWidth,
             build: widget.buildEndDrawer,
           );
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.white,
+      backgroundColor: effectiveStyle.scaffoldBackground,
       drawer: isMobile
           ? _buildMenuDrawer(
               context,
-              style: style,
+              effectiveStyle: effectiveStyle,
               isMobile: true,
               isExpanded: true,
             )
@@ -105,7 +188,7 @@ class FaceScreenState extends State<FaceScreen> {
           if (!isMobile)
             _buildMenuDrawer(
               context,
-              style: style,
+              effectiveStyle: effectiveStyle,
               isMobile: false,
               isExpanded: _isMenuDrawerExpanded,
             ),
@@ -113,6 +196,7 @@ class FaceScreenState extends State<FaceScreen> {
             child: Column(
               children: [
                 TopMenuBar(
+                  effectiveStyle: effectiveStyle,
                   isMobile: isMobile,
                   isMenuDrawerExpanded: _isMenuDrawerExpanded,
                   onToggleMenuDrawer: _handleToggleMenuDrawer,
@@ -120,7 +204,12 @@ class FaceScreenState extends State<FaceScreen> {
                   buildTopMenuCenter: widget.buildTopMenuCenter,
                   buildTopMenuTrailing: widget.buildTopMenuTrailing,
                 ),
-                Expanded(child: widget.buildBody(context)),
+                Expanded(
+                  child: widget.buildBody(
+                    context,
+                    effectiveStyle: effectiveStyle,
+                  ),
+                ),
               ],
             ),
           ),
@@ -132,7 +221,7 @@ class FaceScreenState extends State<FaceScreen> {
   /// Internal helper to build the drawer with navigation logic
   Widget _buildMenuDrawer(
     BuildContext context, {
-    required MenuDrawerStyle style,
+    required FaceStyle effectiveStyle,
     required bool isMobile,
     required bool isExpanded,
   }) {
@@ -142,7 +231,7 @@ class FaceScreenState extends State<FaceScreen> {
       onToggle: isMobile
           ? () => Navigator.of(context).pop()
           : _handleToggleMenuDrawer,
-      style: style,
+      effectiveStyle: effectiveStyle,
       drawerMenuGroupModels: widget.buildDrawerMenuGroupModels(context),
       configurationMenuItemModel: widget.buildConfigurationMenuItemModel(
         context,

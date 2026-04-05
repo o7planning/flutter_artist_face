@@ -19,7 +19,7 @@ class FooterSection extends StatelessWidget {
               style: ubuntuRegular.copyWith(
                 color: Theme.of(
                   context,
-                ).textTheme.bodySmall!.color!.withOpacity(.7),
+                ).textTheme.bodySmall!.color!.withValues(alpha: .7),
               ),
             ),
             if (!ResponsiveHelper.isMobile(context))
@@ -117,7 +117,9 @@ class FooterSection extends StatelessWidget {
             Radius.circular(Dimensions.radiusSmall),
           ),
           color: isActive
-              ? Theme.of(context).textTheme.bodySmall!.color!.withOpacity(.2)
+              ? Theme.of(
+                  context,
+                ).textTheme.bodySmall!.color!.withValues(alpha: .2)
               : Colors.transparent,
         ),
         child: Center(child: Text(pageNumber.toString())),

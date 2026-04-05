@@ -3,14 +3,31 @@ part of '../face_screen.dart';
 class MenuDrawer extends StatelessWidget {
   final List<DrawerMenuGroupModel> drawerMenuGroupModels;
   final DrawerMenuItemModel? configurationMenuItemModel;
-  final Widget Function(BuildContext context) buildDrawerExpandedProfile;
-  final Widget Function(BuildContext context) buildDrawerCollapsedProfile;
-  final Widget Function(BuildContext context) buildDrawerExpandedLogo;
-  final Widget Function(BuildContext context) buildDrawerCollapsedLogo;
+  final Widget Function({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  })
+  buildDrawerExpandedProfile;
+
+  final Widget Function({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  })
+  buildDrawerCollapsedProfile;
+  final Widget Function({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  })
+  buildDrawerExpandedLogo;
+  final Widget Function({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  })
+  buildDrawerCollapsedLogo;
 
   final bool isExpanded;
   final bool isMobile;
-  final MenuDrawerStyle style;
+  final FaceStyle effectiveStyle;
   final VoidCallback onToggle;
 
   /// Callback triggered whenever a menu item is tapped
@@ -28,25 +45,43 @@ class MenuDrawer extends StatelessWidget {
     required this.isMobile,
     required this.onToggle,
     required this.onMenuItemTap,
-    this.style = const MenuDrawerStyle(),
+    required this.effectiveStyle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final FaThemeTokens tokens = context.faTokens;
+    final effectiveDrawerBgColor = tokens.layoutColors.sidebarSurface;
+    //
     return Container(
-      width: isExpanded ? style.expandedWidth : style.collapsedWidth,
-      color: style.backgroundColor,
+      width: isExpanded
+          ? effectiveStyle.sidebarStyle?.expandedWidth
+          : effectiveStyle.sidebarStyle?.collapsedWidth,
+      decoration: BoxDecoration(
+        color: tokens.layoutColors.sidebarSurface,
+        boxShadow:
+            null, // tokens.hasSidebarShadow ? tokens.sidebarShadows : null,
+      ),
       child: Column(
         children: [
           _buildControlTile(context: context),
           isExpanded
-              ? buildDrawerExpandedProfile(context)
-              : buildDrawerCollapsedProfile(context),
+              ? buildDrawerExpandedProfile(
+                  context: context,
+                  effectiveStyle: effectiveStyle,
+                )
+              : buildDrawerCollapsedProfile(
+                  context: context,
+                  effectiveStyle: effectiveStyle,
+                ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: drawerMenuGroupModels
-                    .map((group) => _buildMenuGroup(context, group))
+                    .map(
+                      (group) =>
+                          _buildMenuGroup(context, group, effectiveStyle),
+                    )
                     .toList(),
               ),
             ),
@@ -54,13 +89,14 @@ class MenuDrawer extends StatelessWidget {
           if (configurationMenuItemModel != null)
             Padding(
               padding: isExpanded
-                  ? style.groupPadding
+                  ? (effectiveStyle.sidebarStyle?.groupPadding ??
+                        const EdgeInsets.all(5))
                   : const EdgeInsets.all(5),
               child: MenuItem(
                 menuModel: configurationMenuItemModel!,
                 isExpanded: isExpanded,
                 isMobile: isMobile,
-                style: style,
+                style: effectiveStyle,
                 onTap: () => onMenuItemTap(configurationMenuItemModel!),
               ),
             ),
@@ -69,34 +105,47 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuGroup(BuildContext context, DrawerMenuGroupModel menuGroup) {
+  Widget _buildMenuGroup(
+    BuildContext context,
+    DrawerMenuGroupModel menuGroup,
+    FaceStyle effectiveStyle,
+  ) {
     return Theme(
       data: ThemeData().copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         minTileHeight: 0,
         enabled: menuGroup.showHeader,
         title: menuGroup.showHeader && isExpanded
-            ? Text(menuGroup.title, style: style.groupTitleStyle)
+            ? Text(
+                menuGroup.title,
+                style: effectiveStyle.sidebarStyle?.groupTitleStyle,
+              )
             : menuGroup.showHeader
             ? const Divider(height: 4, color: Colors.white24)
             : const SizedBox.shrink(),
         subtitle: menuGroup.showHeader && isExpanded
-            ? Text(menuGroup.subtitle, style: style.groupSubtitleStyle)
+            ? Text(
+                menuGroup.subtitle,
+                style: effectiveStyle.sidebarStyle?.groupSubtitleStyle,
+              )
             : null,
         backgroundColor: Colors.transparent,
         initiallyExpanded: true,
         showTrailingIcon: false,
-        tilePadding: isExpanded ? style.groupPadding : EdgeInsets.zero,
+        tilePadding: isExpanded
+            ? effectiveStyle.sidebarStyle?.groupPadding
+            : EdgeInsets.zero,
         childrenPadding: EdgeInsets.zero,
         children: menuGroup.menus
             .map(
               (menuModel) => Padding(
-                padding: style.itemPadding,
+                padding:
+                    effectiveStyle.sidebarStyle?.itemPadding ?? EdgeInsets.zero,
                 child: MenuItem(
                   menuModel: menuModel,
                   isExpanded: isExpanded,
                   isMobile: isMobile,
-                  style: style,
+                  style: effectiveStyle,
                   onTap: () => onMenuItemTap(menuModel),
                 ),
               ),
@@ -115,8 +164,14 @@ class MenuDrawer extends StatelessWidget {
       title: Align(
         alignment: Alignment.centerLeft,
         child: isMobile || isExpanded
-            ? buildDrawerExpandedLogo(context)
-            : buildDrawerCollapsedLogo(context),
+            ? buildDrawerExpandedLogo(
+                context: context,
+                effectiveStyle: effectiveStyle,
+              )
+            : buildDrawerCollapsedLogo(
+                context: context,
+                effectiveStyle: effectiveStyle,
+              ),
       ),
       onTap: onToggle,
     );
