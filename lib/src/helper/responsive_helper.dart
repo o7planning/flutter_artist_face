@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -26,13 +28,21 @@ class ResponsiveHelper {
     return width >= 1100;
   }
 
-  static bool isMobile(context) {
+  static bool isDesktopPlatform() {
+    if (kIsWeb) return false;
+    return Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+  }
+
+  static bool isMobile(BuildContext context) {
     final size = MediaQuery.of(context).size.width;
-    if (size < 850 || !kIsWeb) {
-      return true;
-    } else {
-      return false;
-    }
+
+    if (size < 850) return true;
+
+    if (kIsWeb) return false;
+
+    if (isDesktopPlatform()) return false;
+
+    return true;
   }
 
   static bool isTab(context) {
