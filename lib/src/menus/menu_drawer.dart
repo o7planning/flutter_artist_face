@@ -51,16 +51,16 @@ class MenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FaThemeTokens tokens = context.faTokens;
-    final effectiveDrawerBgColor = tokens.layoutColors.sidebarSurface;
+    final effectiveDrawerBgColor = tokens.layout.colors.sidebarSurface;
     //
     return Container(
       width: isExpanded
           ? effectiveStyle.sidebarStyle?.expandedWidth
           : effectiveStyle.sidebarStyle?.collapsedWidth,
       decoration: BoxDecoration(
-        color: tokens.layoutColors.sidebarSurface,
-        boxShadow:
-            null, // tokens.hasSidebarShadow ? tokens.sidebarShadows : null,
+        color: tokens.layout.colors.sidebarSurface,
+        // boxShadow: tokens.hasSidebarShadow ? tokens.sidebarShadows : null,
+        boxShadow: null,
       ),
       child: Column(
         children: [

@@ -90,9 +90,9 @@ abstract class FaceScreen extends StatefulWidget {
     return FaceStyle(
       scaffoldBackground: theme.scaffoldBackgroundColor,
       sidebarStyle: SidebarStyle(
-        backgroundColor: faTheme.tokens.layoutColors.sidebarSurface,
-        itemIconColor: faTheme.tokens.layoutColors.onSidebarSurface,
-        itemTextColor: faTheme.tokens.layoutColors.onSidebarSurface,
+        backgroundColor: faTheme.tokens.layout.colors.sidebarSurface,
+        itemIconColor: faTheme.tokens.layout.colors.onSidebarSurface,
+        itemTextColor: faTheme.tokens.layout.colors.onSidebarSurface,
         itemBorderRadius: faTheme.tokens.shortcut.borderRadius,
         //
         groupTitleStyle: TextStyle(
@@ -101,21 +101,20 @@ abstract class FaceScreen extends StatefulWidget {
           fontSize: 13,
         ),
         groupSubtitleStyle: TextStyle(
-          color: faTheme.tokens.layoutColors.onSidebarSurface.withValues(
+          color: faTheme.tokens.layout.colors.onSidebarSurface.withValues(
             alpha: 0.5,
           ),
           fontSize: 11,
         ),
-        itemHoverColor: faTheme.tokens.layoutColors.onSidebarSurface.withValues(
-          alpha: 0.1,
-        ),
-        itemSelectedColor: faTheme.tokens.layoutColors.onSidebarSurface
+        itemHoverColor: faTheme.tokens.layout.colors.onSidebarSurface
+            .withValues(alpha: 0.1),
+        itemSelectedColor: faTheme.tokens.layout.colors.onSidebarSurface
             .withValues(alpha: 0.2),
       ),
       topbarStyle: TopbarStyle(
-        backgroundColor: faTheme.tokens.layoutColors.topbarSurface,
-        iconColor: faTheme.tokens.layoutColors.onTopbarSurface,
-        textColor: faTheme.tokens.layoutColors.onTopbarSurface,
+        backgroundColor: faTheme.tokens.layout.colors.topbarSurface,
+        iconColor: faTheme.tokens.layout.colors.onTopbarSurface,
+        textColor: faTheme.tokens.layout.colors.onTopbarSurface,
       ),
     );
   }
