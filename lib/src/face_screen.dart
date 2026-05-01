@@ -62,6 +62,13 @@ abstract class FaceScreen extends StatefulWidget {
 
   Widget buildBody(BuildContext context, {required FaceStyle effectiveStyle});
 
+  Widget? buildFloatingActionButton({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  }) {
+    return null;
+  }
+
   Widget? buildFooter({
     required BuildContext context,
     required FaceStyle effectiveStyle,
@@ -172,6 +179,10 @@ class FaceScreenState extends State<FaceScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: effectiveStyle.scaffoldBackground,
+      floatingActionButton: widget.buildFloatingActionButton(
+        context: context,
+        effectiveStyle: effectiveStyle,
+      ),
       drawer: isMobile
           ? _buildMenuDrawer(
               context,
