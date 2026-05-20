@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_artist_face/src/widget/internal_custom_app_container.dart';
-import 'package:flutter_artist_theme/flutter_artist_theme.dart';
 
 import '../flutter_artist_face.dart';
 import 'helper/responsive_helper.dart';
-import 'style/topbar_style.dart';
 
 part 'end_drawer/_end_drawer_wrapper.dart';
-part 'menus/menu_drawer.dart';
+part 'menus/sidebar_menu.dart';
 part 'menus/top_menu_bar.dart';
 
 /// The core layout engine for FlutterArtist Face.
@@ -20,10 +18,9 @@ abstract class FaceScreen extends StatefulWidget {
     return FaceScreenState();
   }
 
-  // --- UI Builders to be implemented by child classes ---
-  List<DrawerMenuGroupModel> buildDrawerMenuGroupModels(BuildContext context);
+  List<SidebarMenuGroupModel> buildSidebarMenuGroupModels(BuildContext context);
 
-  DrawerMenuItemModel? buildConfigurationMenuItemModel(BuildContext context);
+  SidebarMenuItemModel? buildConfigurationMenuItemModel(BuildContext context);
 
   Widget buildTopMenuLeading({
     required BuildContext context,
@@ -40,27 +37,30 @@ abstract class FaceScreen extends StatefulWidget {
     required FaceStyle effectiveStyle,
   });
 
-  Widget buildDrawerExpandedLogo({
+  Widget buildSidebarExpandedLogo({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   });
 
-  Widget buildDrawerCollapsedLogo({
+  Widget buildSidebarCollapsedLogo({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   });
 
-  Widget buildDrawerExpandedProfile({
+  Widget buildSidebarExpandedProfile({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   });
 
-  Widget buildDrawerCollapsedProfile({
+  Widget buildSidebarCollapsedProfile({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   });
 
-  Widget buildBody(BuildContext context, {required FaceStyle effectiveStyle});
+  Widget buildBody({
+    required BuildContext context,
+    required FaceStyle effectiveStyle,
+  });
 
   Widget? buildFloatingActionButton({
     required BuildContext context,
@@ -82,58 +82,12 @@ abstract class FaceScreen extends StatefulWidget {
   // --- Configuration & Events ---
   double calculateEndDrawerWidth(BuildContext context) => 320;
 
-  FaceStyle buildSidebarStyle(BuildContext context) => const FaceStyle();
-
   /// Users can override this screen to define their own style.
   FaceStyle buildStyle(BuildContext context);
 
-  /// Get styles from the Theme (usually via Theme.of(context).extension<...>)
-  /// User can override this method.
-  @override
-  FaceStyle? themeStyle(BuildContext context) {
-    final theme = Theme.of(context);
-    FaTheme faTheme = FaThemeHub.instance.getCurrentTheme();
-
-    return FaceStyle(
-      scaffoldBackground: theme.scaffoldBackgroundColor,
-      sidebarStyle: SidebarStyle(
-        backgroundColor: faTheme.tokens.layout.colors.sidebarSurface,
-        itemIconColor: faTheme.tokens.layout.colors.onSidebarSurface,
-        itemTextColor: faTheme.tokens.layout.colors.onSidebarSurface,
-        itemBorderRadius: faTheme.tokens.shortcut.borderRadius,
-        //
-        groupTitleStyle: TextStyle(
-          color: faTheme.tokens.colors.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
-        groupSubtitleStyle: TextStyle(
-          color: faTheme.tokens.layout.colors.onSidebarSurface.withValues(
-            alpha: 0.5,
-          ),
-          fontSize: 11,
-        ),
-        itemHoverColor: faTheme.tokens.layout.colors.onSidebarSurface
-            .withValues(alpha: 0.1),
-        itemSelectedColor: faTheme.tokens.layout.colors.onSidebarSurface
-            .withValues(alpha: 0.2),
-      ),
-      topbarStyle: TopbarStyle(
-        backgroundColor: faTheme.tokens.layout.colors.topbarSurface,
-        iconColor: faTheme.tokens.layout.colors.onTopbarSurface,
-        textColor: faTheme.tokens.layout.colors.onTopbarSurface,
-      ),
-    );
-  }
-
-  /// 3-Layer Unified Logic Processing Method.
   FaceStyle _resolveStyle(BuildContext context) {
     final userStyle = buildStyle(context);
-    final appThemeStyle = themeStyle(context);
-    final systemDefaults = FaceStyle.defaults();
-
-    // Priority order: User > Theme > Defaults
-    return userStyle.merge(appThemeStyle).merge(systemDefaults);
+    return userStyle;
   }
 
   void onEndDrawerChanged(bool isOpened) {}
@@ -150,11 +104,11 @@ abstract class FaceScreen extends StatefulWidget {
 }
 
 class FaceScreenState extends State<FaceScreen> {
-  bool _isMenuDrawerExpanded = true;
+  bool _isSidebarExpanded = true;
 
-  void _handleToggleMenuDrawer() {
+  void _handleToggleSidebar() {
     setState(() {
-      _isMenuDrawerExpanded = !_isMenuDrawerExpanded;
+      _isSidebarExpanded = !_isSidebarExpanded;
     });
   }
 
@@ -163,7 +117,6 @@ class FaceScreenState extends State<FaceScreen> {
     bool isMobile = ResponsiveHelper.isMobile(context);
     final FaceStyle effectiveStyle = widget._resolveStyle(context);
 
-    // Prepare Native EndDrawer
     Widget? endDrawerWidget = widget.buildEndDrawer(
       context: context,
       effectiveStyle: effectiveStyle,
@@ -184,7 +137,7 @@ class FaceScreenState extends State<FaceScreen> {
         effectiveStyle: effectiveStyle,
       ),
       drawer: isMobile
-          ? _buildMenuDrawer(
+          ? _buildSidebar(
               context,
               effectiveStyle: effectiveStyle,
               isMobile: true,
@@ -196,27 +149,29 @@ class FaceScreenState extends State<FaceScreen> {
       body: Row(
         children: [
           if (!isMobile)
-            _buildMenuDrawer(
+            _buildSidebar(
               context,
               effectiveStyle: effectiveStyle,
               isMobile: false,
-              isExpanded: _isMenuDrawerExpanded,
+              isExpanded: _isSidebarExpanded,
             ),
           Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TopMenuBar(
                   effectiveStyle: effectiveStyle,
                   isMobile: isMobile,
-                  isMenuDrawerExpanded: _isMenuDrawerExpanded,
-                  onToggleMenuDrawer: _handleToggleMenuDrawer,
+                  isSidebarExpanded: _isSidebarExpanded,
+                  onToggleSidebar: _handleToggleSidebar,
                   buildTopMenuLeading: widget.buildTopMenuLeading,
                   buildTopMenuCenter: widget.buildTopMenuCenter,
                   buildTopMenuTrailing: widget.buildTopMenuTrailing,
                 ),
                 Expanded(
                   child: widget.buildBody(
-                    context,
+                    context: context,
                     effectiveStyle: effectiveStyle,
                   ),
                 ),
@@ -228,29 +183,27 @@ class FaceScreenState extends State<FaceScreen> {
     );
   }
 
-  /// Internal helper to build the drawer with navigation logic
-  Widget _buildMenuDrawer(
+  Widget _buildSidebar(
     BuildContext context, {
     required FaceStyle effectiveStyle,
     required bool isMobile,
     required bool isExpanded,
   }) {
-    return MenuDrawer(
+    return SidebarMenu(
       isMobile: isMobile,
       isExpanded: isExpanded,
       onToggle: isMobile
           ? () => Navigator.of(context).pop()
-          : _handleToggleMenuDrawer,
+          : _handleToggleSidebar,
       effectiveStyle: effectiveStyle,
-      drawerMenuGroupModels: widget.buildDrawerMenuGroupModels(context),
+      sidebarMenuGroupModels: widget.buildSidebarMenuGroupModels(context),
       configurationMenuItemModel: widget.buildConfigurationMenuItemModel(
         context,
       ),
-      buildDrawerExpandedLogo: widget.buildDrawerExpandedLogo,
-      buildDrawerCollapsedLogo: widget.buildDrawerCollapsedLogo,
-      buildDrawerExpandedProfile: widget.buildDrawerExpandedProfile,
-      buildDrawerCollapsedProfile: widget.buildDrawerCollapsedProfile,
-      // The core navigation callback
+      buildSidebarExpandedLogo: widget.buildSidebarExpandedLogo,
+      buildSidebarCollapsedLogo: widget.buildSidebarCollapsedLogo,
+      buildSidebarExpandedProfile: widget.buildSidebarExpandedProfile,
+      buildSidebarCollapsedProfile: widget.buildSidebarCollapsedProfile,
       onMenuItemTap: (menuModel) {
         if (menuModel.externalUrl != null) {
           menuModel.openExternalUrl();

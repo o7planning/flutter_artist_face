@@ -4,10 +4,10 @@ import 'package:just_the_tooltip/just_the_tooltip.dart';
 import '../style/face_style.dart';
 import 'menu_model.dart';
 
-/// A single interactive item within the MenuDrawer.
+/// A single interactive item within the Sidebar.
 /// This widget is now purely presentational, relying on its parent for state and actions.
 class MenuItem extends StatefulWidget {
-  final DrawerMenuItemModel menuModel;
+  final SidebarMenuItemModel menuModel;
   final bool isExpanded;
   final bool isMobile;
   final FaceStyle style;
@@ -39,14 +39,14 @@ class _MenuItemState extends State<MenuItem> {
     /// Selection state is now strictly driven by the data model.
     final bool isSelected = widget.menuModel.isSelected;
 
-    final double radius = widget.style.sidebarStyle?.itemBorderRadius ?? 4;
+    final double radius = widget.style.sidebarStyle.itemBorderRadius;
 
-    final Color? iconColor = widget.style.sidebarStyle?.itemIconColor;
-    final Color? textColor = widget.style.sidebarStyle?.itemTextColor;
+    final Color? iconColor = widget.style.sidebarStyle.itemIconColor;
+    final Color? textColor = widget.style.sidebarStyle.itemTextColor;
     // style.itemHoverColor
-    final Color? hoverColor = widget.style.sidebarStyle?.itemHoverColor;
+    final Color? hoverColor = widget.style.sidebarStyle.itemHoverColor;
     // style.itemSelectedColor
-    final Color? selectedColor = widget.style.sidebarStyle?.itemSelectedColor;
+    final Color? selectedColor = widget.style.sidebarStyle.itemSelectedColor;
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),

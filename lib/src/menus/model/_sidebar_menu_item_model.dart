@@ -1,8 +1,6 @@
 part of '../menu_model.dart';
 
-/// Data model representing a single entry in the navigation drawer.
-/// Now decoupled from any specific routing framework like GetX.
-class DrawerMenuItemModel {
+class SidebarMenuItemModel {
   final String code;
   final String? menuTitle;
   final String? route;
@@ -20,7 +18,7 @@ class DrawerMenuItemModel {
 
   final List<String>? markAsSelectedForRoutes;
 
-  const DrawerMenuItemModel({
+  const SidebarMenuItemModel({
     required this.code,
     required this.iconData,
     this.menuTitle,

@@ -1,13 +1,13 @@
 part of '../menu_model.dart';
 
-class DrawerMenuGroupModel {
+class SidebarMenuGroupModel {
   final String title;
   final String subtitle;
   final bool showHeader;
 
-  final List<DrawerMenuItemModel> menus;
+  final List<SidebarMenuItemModel> menus;
 
-  const DrawerMenuGroupModel({
+  const SidebarMenuGroupModel({
     required this.title,
     required this.subtitle,
     required this.menus,

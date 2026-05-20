@@ -1,3 +1,7 @@
-## 0.0.1
+## 0.9.4
 
-* TODO: Describe initial release.
+* Fix Bug.
+
+## 0.9.3
+
+* Initial release.
