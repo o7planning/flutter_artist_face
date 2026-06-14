@@ -1,28 +1,54 @@
 part of '../face_screen.dart';
 
-/// The horizontal navigation bar at the top of the application.
-/// Strictly follows a stateless pattern, receiving data via constructor.
+/// An enterprise-grade navigation appbar layout component that orchestrates adaptive
+/// horizontal header areas for full-frame dashboard panels.
+///
+/// Built as a core presentation asset within the `FlutterArtist` framework, [TopMenuBar] automatically
+/// coordinates responsive navigation state flips via ambient callbacks, routing mobile viewports to open
+/// structural drawers while allowing desktop contexts to toggle vertical sidebar panels smoothly.
 class TopMenuBar extends StatelessWidget {
+  /// The global active theme token property enforcing decorative styles, background color schemes,
+  /// and custom iconography colors across header partitions.
   final FaceStyle effectiveStyle;
+
+  /// Flags whether the hosting device conforms to a compact viewport constraints matrix,
+  /// dynamically shifting layout behavior rules and touch-first interaction scopes.
   final bool isMobile;
+
+  /// Dictates if the auxiliary sidebar component is currently fully extended to broad visual limits
+  /// or minimized into narrow icon-only command lanes.
   final bool isSidebarExpanded;
+
+  /// Fires a custom programmatic execution handler callback upstream immediately upon
+  /// intercepting toggle clicks in non-mobile viewports.
   final VoidCallback onToggleSidebar;
+
+  /// A structural layout builder compiling visual branding graphics, back buttons,
+  /// or title texts near the leading boundary of the header bar strip.
   final Widget Function({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   })
   buildTopMenuLeading;
+
+  /// A structural layout builder filling out the centralized segment track of the header bar canvas,
+  /// commonly deployed to host search bars, workspace indicators, or tab viewports.
   final Widget Function({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   })
   buildTopMenuCenter;
+
+  /// A structural layout builder compiling system quick tools, profile badges, notification triggers,
+  /// or diagnostic status monitors at the absolute end boundary lane.
   final Widget Function({
     required BuildContext context,
     required FaceStyle effectiveStyle,
   })
   buildTopMenuTrailing;
 
+  /// Constructs a standard, production-ready immutable declarative instance of [TopMenuBar]
+  /// with explicit structure parameters.
   const TopMenuBar({
     super.key,
     required this.effectiveStyle,
