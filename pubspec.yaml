@@ -1,6 +1,6 @@
 name: flutter_artist_face
 description: A standalone, highly customizable multi-platform Admin Dashboard layout framework for Flutter, featuring adaptive modular sidebars and unified topbar structures.
-version: 0.9.5
+version: 0.9.7
 resolution: workspace
 homepage: https://o7planning.github.io
 
@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  pointer_interceptor: ^0.10.1+2
   shared_preferences: ^2.5.4
   just_the_tooltip: ^0.0.12
   url_launcher: ^6.3.2

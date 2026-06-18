@@ -3,6 +3,9 @@ import 'package:flutter_artist_face/src/widget/internal_custom_app_container.dar
 
 import '../flutter_artist_face.dart';
 import 'helper/responsive_helper.dart';
+// IMPORTANT:
+import 'platform/interceptor_bridge_stub.dart'
+    if (dart.library.js_interop) 'platform/interceptor_bridge_web.dart';
 
 part 'end_drawer/_end_drawer_wrapper.dart';
 part 'menus/sidebar_menu.dart';
@@ -207,10 +210,13 @@ class FaceScreenState extends State<FaceScreen> {
     );
     Widget? finalEndDrawer = endDrawerWidget == null
         ? null
-        : _EndDrawerWrapper(
-            effectiveStyle: effectiveStyle,
-            calculateEndDrawerWidth: widget.calculateEndDrawerWidth,
-            build: widget.buildEndDrawer,
+        : buildInterceptorShield(
+            intercepting: true,
+            child: _EndDrawerWrapper(
+              effectiveStyle: effectiveStyle,
+              calculateEndDrawerWidth: widget.calculateEndDrawerWidth,
+              build: widget.buildEndDrawer,
+            ),
           );
 
     return Scaffold(
@@ -221,11 +227,14 @@ class FaceScreenState extends State<FaceScreen> {
         effectiveStyle: effectiveStyle,
       ),
       drawer: isMobile
-          ? _buildSidebar(
-              context,
-              effectiveStyle: effectiveStyle,
-              isMobile: true,
-              isExpanded: true,
+          ? buildInterceptorShield(
+              intercepting: true,
+              child: _buildSidebar(
+                context,
+                effectiveStyle: effectiveStyle,
+                isMobile: true,
+                isExpanded: true,
+              ),
             )
           : null,
       endDrawer: finalEndDrawer,
